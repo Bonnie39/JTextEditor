@@ -1,15 +1,25 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import javax.swing.*;
 
 public class EditorGUI {
     FileManagement fileMgr = new FileManagement();
+
+    KeyStroke saveBind = KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+    Action saveAction = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            fileMgr.SaveFile(editorContainer);  //  SaveAs will automatically be called if the current working file is null (new file)
+        }
+    };
 
     JFrame frame = new JFrame();
     JMenuBar menuBar = new JMenuBar();
 
     //  MENU BAR ITEMS
     JMenu fileMenu = new JMenu("File");
-    JMenu optionsMenu = new JMenu("Options");
+    JMenuItem optionsMenu = new JMenuItem("Options");
 
     //  FILE SUB-OPTIONS
     JMenuItem save = new JMenuItem("Save");
@@ -25,8 +35,6 @@ public class EditorGUI {
         fileMenu.add(save);
         fileMenu.add(saveAs);
 
-        //optionsMenu.add();    //  TODO: OPTIONS MENU
-
         menuBar.add(fileMenu);
         menuBar.add(optionsMenu);
 
@@ -41,6 +49,9 @@ public class EditorGUI {
         // TEXT EDITOR CONFIG
         editorContainer.setLineWrap(true);
         editorContainer.setWrapStyleWord(true);
+        editorContainer.setFont(editorContainer.getFont().deriveFont(18f)); //  set font size while keeping the same font
+        editorContainer.getInputMap().put(saveBind, "saveAction");
+        editorContainer.getActionMap().put("saveAction", saveAction);
 
         // Wrap the text area in a JScrollPane
         JScrollPane editorScrollPane = new JScrollPane(editorContainer);
@@ -54,5 +65,6 @@ public class EditorGUI {
         open.addActionListener(e -> fileMgr.OpenTextFile(frame, editorContainer));
         save.addActionListener(e -> fileMgr.SaveFile(editorContainer));
         saveAs.addActionListener(e -> fileMgr.SaveFileAs(editorContainer));
+        optionsMenu.addActionListener((ActionEvent e) -> new OptionsWindow());
     }
 }
